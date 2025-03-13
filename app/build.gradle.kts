@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    // ML Kit para Reconocimiento de Imágenes
+    implementation("com.google.mlkit:image-labeling:17.0.7")
+    implementation("com.google.android.gms:play-services-mlkit-image-labeling:18.0.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
