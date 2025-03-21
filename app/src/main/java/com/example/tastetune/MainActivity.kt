@@ -1,47 +1,86 @@
 package com.example.tastetune
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.tastetune.ui.theme.TasteTuneTheme
+import android.provider.MediaStore
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var imageView: ImageView
+    private lateinit var tvResults: TextView
+
+    private val REQUEST_IMAGE_CAPTURE = 1
+    private val REQUEST_IMAGE_PICK = 2
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            TasteTuneTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+        setContentView(R.layout.activity_main)
+
+        imageView = findViewById(R.id.imageView)
+        tvResults = findViewById(R.id.tvResults)
+
+        findViewById<Button>(R.id.btnCaptureImage).setOnClickListener {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+        }
+
+        findViewById<Button>(R.id.btnSelectImage).setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(intent, REQUEST_IMAGE_PICK)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_IMAGE_CAPTURE -> {
+                    val imageBitmap = data?.extras?.get("data") as Bitmap
+                    imageView.setImageBitmap(imageBitmap)
+                    processImage(InputImage.fromBitmap(imageBitmap, 0))
+                }
+
+                REQUEST_IMAGE_PICK -> {
+                    val imageUri: Uri? = data?.data
+                    if (imageUri != null) {
+                        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            val source = ImageDecoder.createSource(this.contentResolver, imageUri)
+                            ImageDecoder.decodeBitmap(source)
+                        } else {
+                            MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
+                        }
+                        imageView.setImageBitmap(bitmap)
+                        processImage(InputImage.fromBitmap(bitmap, 0))
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    private fun processImage(image: InputImage) {
+        val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TasteTuneTheme {
-        Greeting("Android")
+        labeler.process(image)
+            .addOnSuccessListener { labels ->
+                val resultText = labels.joinToString("\n") { "${it.text} - Precisión: ${it.confidence * 100}%" }
+                tvResults.text = resultText
+            }
+            .addOnFailureListener { e ->
+                tvResults.text = "Error: ${e.message}"
+            }
     }
 }
