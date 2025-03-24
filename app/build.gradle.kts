@@ -41,8 +41,10 @@ android {
 
 dependencies {
     // ML Kit para Reconocimiento de Imágenes
-    implementation ("com.google.mlkit:image-labeling:17.0.9")
+    implementation("com.google.mlkit:image-labeling:17.0.9")
 
+    //importacion para que android acepte las importaciones del httpclient
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -54,6 +56,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.image.labeling.custom.common)
+    implementation(libs.firebase.crashlytics.buildtools)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
