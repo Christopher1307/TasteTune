@@ -1,0 +1,20 @@
+Usar el Refresh Token para renovar el Access Token: Cuando el Access Token expire (normalmente en una hora), puedes usar el Refresh Token para obtener un nuevo Access Token sin tener que pasar por el proceso de autenticación nuevamente. Aquí tienes un ejemplo de cómo hacerlo:
+
+$uri = "https://accounts.spotify.com/api/token"
+
+# Header de la autorización básica
+$headers = @{
+    "Authorization" = "Basic YjUwYjJjNGFmMzViNDI0NjkxMjdmYmJjOWU3MWIxNTg6NzBkM2Q0MWQ4NmUzNDVmY2JjZTM3NjAwNGQ3NmExNzM="  # ClientID y ClientSecret codificados en Base64
+}
+
+# Body con el Refresh Token
+$body = @{
+    "grant_type" = "refresh_token"
+    "refresh_token" = "AQAbN3367zb2D37vmu4Xrdz_TX0Vpnu6TLmS9DFLROitQph9sCF3A_y2hNCdOQI_oPjBKelofxDrjJfdvptzw0I8bbOpiBWdQ4CeMStB9KocCqU-bKX_P1zXhV1rxzuqS5Q"
+}
+
+$response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
+$response
+
+
+Esto te devolverá un nuevo Access Token y podrás seguir haciendo solicitudes a la API de Spotify
