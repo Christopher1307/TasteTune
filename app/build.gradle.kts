@@ -46,6 +46,12 @@ dependencies {
     //importacion para que android acepte las importaciones del httpclient
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
+    //reconocimiento de imagenes Gratuito clarifai
+    implementation("org.json:json:20210307")
+
+
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

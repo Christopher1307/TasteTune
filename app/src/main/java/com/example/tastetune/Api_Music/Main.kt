@@ -1,15 +1,16 @@
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.tastetune.Api.SpotifyAuth
-import com.example.tastetune.Api.createPlaylist
-import com.example.tastetune.Api.getUserProfile
+import com.example.tastetune.Api_Music.SpotifyAuth
+import com.example.tastetune.Api_Music.createPlaylist
+import com.example.tastetune.Api_Music.getUserProfile
+import com.example.tastetune.Api_imagen.ClarifaiApi
+import java.io.File
 
-// `app/src/main/java/com/example/tastetune/Api/Main.kt`
 @RequiresApi(Build.VERSION_CODES.O)
+
 fun main() {
     println("Inicia sesión en Spotify visitando esta URL:")
     println(SpotifyAuth.getAuthUrl())
-    println("\nIntroduce el código que aparece en la URL después de autorizar la aplicación:")
 
     val code = readLine() ?: error("No se proporcionó ningún código.")
 
@@ -26,6 +27,7 @@ fun main() {
             val userId = "31n5pznawv42ml54pih7425bd6me"
             createPlaylist(accessToken, userId, "Playlist de comida favorita") { playlistId ->
                 println("Playlist creada con ID: $playlistId")
+                // The test code or calls related to Clarifai can be safely removed here if not needed.
             }
         }
     }
