@@ -3,6 +3,7 @@ package com.example.tastetune.Api_imagen
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -16,6 +17,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.tastetune.R
@@ -37,6 +40,15 @@ class ImageSelectorFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_image_selector, container, false)
 
+        // Verificación de permisos de cámara
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 100)
+        }
+
         imageView = view.findViewById(R.id.img_selected)
         val galleryButton: Button = view.findViewById(R.id.btn_select_gallery)
         val cameraButton: Button = view.findViewById(R.id.btn_take_photo)
@@ -44,7 +56,6 @@ class ImageSelectorFragment : Fragment() {
         galleryButton.setOnClickListener { openGallery() }
         cameraButton.setOnClickListener { openCamera() }
 
-        // Configurar ActivityResultLaunchers
         galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val selectedImageUri = result.data?.data
@@ -83,7 +94,7 @@ class ImageSelectorFragment : Fragment() {
 
     private fun createImageFile(): File {
         val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile("IMG_${System.currentTimeMillis()}", ".jpg", storageDir)
+        return File.createTempFile("IMG_\${System.currentTimeMillis()}", ".jpg", storageDir)
     }
 
     private fun getRealPathFromUri(uri: Uri): String? {
@@ -96,35 +107,29 @@ class ImageSelectorFragment : Fragment() {
 
     private fun processImage(imageUri: Uri) {
         Log.d("ImageSelectorFragment", "Procesando imagen: $imageUri")
-        imageView.setImageURI(imageUri) // Mostrar la imagen en pantalla
+        imageView.setImageURI(imageUri)
 
-        // Obtener la ruta real de la imagen
         val path = getRealPathFromUri(imageUri)
         if (path == null) {
             Toast.makeText(requireContext(), "No se pudo obtener la ruta de la imagen", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Ejecutar el análisis en un hilo aparte (no bloquear la UI)
         Thread {
             try {
-                // Analizar la imagen con Clarifai y obtener etiquetas
                 val labels = ClarifaiApi.analyzeImage(path)
                 requireActivity().runOnUiThread {
                     if (labels.isNotEmpty()) {
-                        val foodLabel = labels.first() // Por ejemplo, usamos la primera etiqueta
+                        val foodLabel = labels.first()
+                        // Registro normal sin 'e'
                         Log.d("ImageSelectorFragment", "Comida detectada: ${labels.joinToString(", ")}")
-                        // Suponiendo que ya tienes el token de Spotify y el ID del usuario/playlist
-                        val accessToken = "TU_SPOTIFY_ACCESS_TOKEN" // Obtén el token mediante tu flujo de autenticación
-                        val userId = "TU_SPOTIFY_USER_ID" // Puedes obtenerlo del perfil de usuario
 
-                        // Crear una playlist nueva basada en la comida detectada
+                        val accessToken = "TU_SPOTIFY_ACCESS_TOKEN"
+                        val userId = "TU_SPOTIFY_USER_ID"
                         createPlaylist(accessToken, userId, "Playlist de $foodLabel") { playlistId ->
                             if (playlistId != null) {
-                                // Buscar canciones relacionadas con la etiqueta foodLabel
                                 searchTracks(accessToken, foodLabel) { trackUris ->
                                     if (trackUris.isNotEmpty()) {
-                                        // Agregar las canciones encontradas a la playlist creada
                                         addTracksToPlaylist(accessToken, playlistId, trackUris) { success ->
                                             if (success) {
                                                 Toast.makeText(requireContext(), "Playlist creada y actualizada", Toast.LENGTH_SHORT).show()
