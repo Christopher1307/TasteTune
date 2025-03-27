@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.image.labeling.custom.common)
     implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.androidx.coordinatorlayout)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
