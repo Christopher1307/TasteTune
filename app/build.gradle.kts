@@ -49,6 +49,8 @@ dependencies {
     //reconocimiento de imagenes Gratuito clarifai
     implementation("org.json:json:20210307")
 
+    implementation ("com.google.android.material:material:1.11.0")
+
 
 
 

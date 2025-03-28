@@ -1,10 +1,14 @@
-<!-- Archivo: `app/src/main/res/layout/activity_main.xml` -->
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    tools:context=".MainActivity">
 
+    <!-- Barra superior -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
@@ -12,8 +16,9 @@
         android:background="?attr/colorPrimary"
         android:title="TasteTune"
         android:titleTextColor="@android:color/white"
-        app:layout_scrollFlags="scroll|enterAlways"/>
+        app:navigationIcon="@drawable/ic_menu" />
 
+    <!-- Contenido principal -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,36 +28,61 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
+            <!-- Imagen capturada/seleccionada -->
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
                 android:scaleType="centerCrop"
-                android:background="@drawable/imagen_border_background"/>
+                android:background="@drawable/imagen_border_background"
+                android:src="@drawable/ic_placeholder" />
 
-            <Button
-                android:id="@+id/btnCaptureImage"
+            <!-- Botones de acción -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tomar Foto"
-                android:layout_marginTop="16dp"/>
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
 
-            <Button
-                android:id="@+id/btnSelectImage"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCaptureImage"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tomar Foto"
+                    app:icon="@drawable/ic_camera"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSelectImage"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seleccionar Imagen"
+                    app:icon="@drawable/ic_gallery"/>
+            </LinearLayout>
+
+            <!-- Resultados -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Seleccionar Imagen"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/tvResults"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textSize="16sp"/>
-
+                <TextView
+                    android:id="@+id/tvResults"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Resultados aparecerán aquí"
+                    android:textSize="16sp"
+                    android:textAlignment="center"/>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,10 +1,11 @@
 <resources>
 
-    <style name="Theme.TasteTune" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here -->
+    <style name="Theme.TasteTune" parent="Theme.MaterialComponents.Light">
+        <!-- Opción si prefieres modo oscuro -->
+        <!-- parent="Theme.MaterialComponents.Dark" -->
         <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/teal_200</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
     </style>
 
 </resources>
