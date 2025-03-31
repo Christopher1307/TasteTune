@@ -1,5 +1,6 @@
 package com.example.tastetune.Api_imagen
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -17,8 +18,6 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.tastetune.R
@@ -31,6 +30,7 @@ class ImageSelectorFragment : Fragment() {
 
     private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
     private lateinit var cameraLauncher: ActivityResultLauncher<Uri>
+    private lateinit var permissionLauncher: ActivityResultLauncher<String>
     private var imageUri: Uri? = null
     private lateinit var imageView: ImageView
 
@@ -40,22 +40,14 @@ class ImageSelectorFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_image_selector, container, false)
 
-        // Verificación de permisos de cámara
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                android.Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 100)
-        }
-
         imageView = view.findViewById(R.id.img_selected)
         val galleryButton: Button = view.findViewById(R.id.btn_select_gallery)
         val cameraButton: Button = view.findViewById(R.id.btn_take_photo)
 
         galleryButton.setOnClickListener { openGallery() }
-        cameraButton.setOnClickListener { openCamera() }
+        cameraButton.setOnClickListener { checkCameraPermissionAndOpenCamera() }
 
+        // Launcher para seleccionar imagen de galería
         galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val selectedImageUri = result.data?.data
@@ -65,11 +57,21 @@ class ImageSelectorFragment : Fragment() {
             }
         }
 
+        // Launcher para tomar foto
         cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 imageUri?.let { processImage(it) }
             } else {
                 Toast.makeText(requireContext(), "No se tomó ninguna foto", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Launcher para solicitar permiso de cámara
+        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                openCamera()
+            } else {
+                Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -79,6 +81,15 @@ class ImageSelectorFragment : Fragment() {
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         galleryLauncher.launch(intent)
+    }
+
+    private fun checkCameraPermissionAndOpenCamera() {
+        // Usamos la API moderna para solicitar permisos
+        if (requireContext().checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            openCamera()
+        }
     }
 
     private fun openCamera() {
@@ -94,7 +105,7 @@ class ImageSelectorFragment : Fragment() {
 
     private fun createImageFile(): File {
         val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile("IMG_\${System.currentTimeMillis()}", ".jpg", storageDir)
+        return File.createTempFile("IMG_${System.currentTimeMillis()}", ".jpg", storageDir)
     }
 
     private fun getRealPathFromUri(uri: Uri): String? {
@@ -107,7 +118,7 @@ class ImageSelectorFragment : Fragment() {
 
     private fun processImage(imageUri: Uri) {
         Log.d("ImageSelectorFragment", "Procesando imagen: $imageUri")
-        imageView.setImageURI(imageUri)
+        imageView.setImageURI(imageUri) // Mostrar la imagen en pantalla
 
         val path = getRealPathFromUri(imageUri)
         if (path == null) {
@@ -121,9 +132,7 @@ class ImageSelectorFragment : Fragment() {
                 requireActivity().runOnUiThread {
                     if (labels.isNotEmpty()) {
                         val foodLabel = labels.first()
-                        // Registro normal sin 'e'
                         Log.d("ImageSelectorFragment", "Comida detectada: ${labels.joinToString(", ")}")
-
                         val accessToken = "TU_SPOTIFY_ACCESS_TOKEN"
                         val userId = "TU_SPOTIFY_USER_ID"
                         createPlaylist(accessToken, userId, "Playlist de $foodLabel") { playlistId ->
