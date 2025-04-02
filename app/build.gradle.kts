@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt") // ✅ Añadir esto para soporte de Kapt
 }
 
 android {
@@ -39,21 +40,30 @@ android {
     }
 }
 
+kapt { // ✅ Configuración necesaria para Room
+    correctErrorTypes = true
+}
+
 dependencies {
+
+    // Room Database (Base de datos local)
+    implementation("androidx.room:room-runtime:2.5.0")
+    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+
     // ML Kit para Reconocimiento de Imágenes
     implementation("com.google.mlkit:image-labeling:17.0.9")
 
-    //importacion para que android acepte las importaciones del httpclient
-    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    // OkHttp para peticiones HTTP
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
-    //reconocimiento de imagenes Gratuito clarifai
+    // Reconocimiento de imágenes Clarifai
     implementation("org.json:json:20210307")
 
-    implementation ("com.google.android.material:material:1.11.0")
+    // Material Design
+    implementation("com.google.android.material:material:1.11.0")
 
-
-
-
+    // Dependencias de AndroidX y Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
