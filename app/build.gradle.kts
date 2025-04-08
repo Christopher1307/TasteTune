@@ -1,8 +1,11 @@
+// build.gradle.kts en la carpeta app (Module :app)
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt") // ✅ Añadir esto para soporte de Kapt
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
+    id("kotlin-parcelize")
+    id("org.jetbrains.compose")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -15,8 +18,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        compose = true
     }
 
     buildTypes {
@@ -28,62 +34,69 @@ android {
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
+        jvmTarget = "17"
     }
 }
 
-kapt { // ✅ Configuración necesaria para Room
-    correctErrorTypes = true
+repositories {
+    google()
+    mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
 dependencies {
+    // Compose
+    implementation("androidx.compose.ui:ui:1.5.0")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
+    implementation("androidx.activity:activity-compose:1.7.0")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
 
-    // Room Database (Base de datos local)
-    implementation("androidx.room:room-runtime:2.5.0")
-    implementation(libs.androidx.recyclerview)
-    kapt("androidx.room:room-compiler:2.5.0")
-    implementation("androidx.room:room-ktx:2.5.0")
+    // Firebase
+    implementation("com.google.firebase:firebase-firestore-ktx:24.7.0")
+    implementation("com.google.firebase:firebase-analytics-ktx:21.1.0")
+    implementation("com.google.firebase:firebase-auth-ktx:21.1.0")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.8.1")
 
-    // ML Kit para Reconocimiento de Imágenes
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+
+    // ML Kit
     implementation("com.google.mlkit:image-labeling:17.0.9")
 
-    // OkHttp para peticiones HTTP
+    // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
 
-    // Reconocimiento de imágenes Clarifai
+    // JSON
     implementation("org.json:json:20210307")
 
     // Material Design
     implementation("com.google.android.material:material:1.11.0")
 
-    // Dependencias de AndroidX y Compose
+    // AndroidX
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.fragment:fragment-ktx:1.5.7")
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.image.labeling.custom.common)
-    implementation(libs.firebase.crashlytics.buildtools)
-    implementation(libs.androidx.coordinatorlayout)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("androidx.appcompat:appcompat:1.5.0")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+
+    // Navigation (opcional)
+    implementation("androidx.navigation:navigation-compose:2.5.1")
+
+    // Hilt (opcional)
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-compiler:2.44")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    // LiveData (opcional)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 }

@@ -1,56 +1,48 @@
-// AnalysisHistoryFragment.kt
-package com.example.tastetune.Api_imagen
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.fragment.app.commit
+import com.example.tastetune.AnalysisAdapter
 import com.example.tastetune.R
+import com.example.tastetune.data.FirestoreHelper
 import com.example.tastetune.data.Analysis
-import com.example.tastetune.data.TasteTuneDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AnalysisHistoryFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: AnalysisAdapter
-    private lateinit var database: TasteTuneDatabase
+    private lateinit var foodLabelTextView: TextView
+    private lateinit var analysisRecyclerView: RecyclerView
+    private lateinit var analysisAdapter: AnalysisAdapter
+    private val firestoreHelper = FirestoreHelper
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_analysis_history, container, false)
 
-        recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        foodLabelTextView = view.findViewById(R.id.foodLabelTextView)
+        analysisRecyclerView = view.findViewById(R.id.analysisRecyclerView)
 
-        database = TasteTuneDatabase.getDatabase(requireContext())
+        analysisAdapter = AnalysisAdapter(listOf())
+        analysisRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        analysisRecyclerView.adapter = analysisAdapter
 
-        loadAnalysisHistory()
+        loadAnalysisData()
 
         return view
     }
 
-    private fun loadAnalysisHistory() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val analysisList = database.analysisDao().getAllAnalysis()
-
-            withContext(Dispatchers.Main) {
-                adapter = AnalysisAdapter(analysisList) { analysis ->
-                    val fragment = PlaylistDetailFragment.newInstance(analysis)
-                    parentFragmentManager.commit {
-                        replace(R.id.fragment_container, fragment)
-                        addToBackStack(null)
-                    }
-                }
-                recyclerView.adapter = adapter
+    private fun loadAnalysisData() {
+        firestoreHelper.getAllAnalyses { analyses ->
+            analysisAdapter.updateData(analyses)
+            if (analyses.isNotEmpty()) {
+                foodLabelTextView.text = "Comida detectada: ${analyses[0].foodLabel}"
+            } else {
+                foodLabelTextView.text = "No hay análisis disponibles."
             }
         }
     }
