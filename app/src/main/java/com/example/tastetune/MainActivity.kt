@@ -14,7 +14,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
-import com.google.mlkit.vision.label.custom.CustomImageLabelerOptions
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 
 class MainActivity : AppCompatActivity() {
