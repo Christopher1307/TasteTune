@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.commit
 import com.example.tastetune.R
 import com.example.tastetune.data.Analysis
 import com.example.tastetune.data.TasteTuneDatabase
@@ -43,7 +43,13 @@ class AnalysisHistoryFragment : Fragment() {
             val analysisList = database.analysisDao().getAllAnalysis()
 
             withContext(Dispatchers.Main) {
-                adapter = AnalysisAdapter(analysisList)
+                adapter = AnalysisAdapter(analysisList) { analysis ->
+                    val fragment = PlaylistDetailFragment.newInstance(analysis)
+                    parentFragmentManager.commit {
+                        replace(R.id.fragment_container, fragment)
+                        addToBackStack(null)
+                    }
+                }
                 recyclerView.adapter = adapter
             }
         }

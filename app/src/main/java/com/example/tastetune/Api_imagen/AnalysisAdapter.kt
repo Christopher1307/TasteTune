@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tastetune.R
 import com.example.tastetune.data.Analysis
 
-class AnalysisAdapter(private val analysisList: List<Analysis>) :
-    RecyclerView.Adapter<AnalysisAdapter.AnalysisViewHolder>() {
+class AnalysisAdapter(
+    private val analysisList: List<Analysis>,
+    private val onItemClick: (Analysis) -> Unit
+) : RecyclerView.Adapter<AnalysisAdapter.AnalysisViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AnalysisViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,6 +24,10 @@ class AnalysisAdapter(private val analysisList: List<Analysis>) :
         val analysis = analysisList[position]
         holder.foodLabel.text = analysis.foodLabel
         holder.timestamp.text = analysis.timestamp.toString()
+
+        holder.itemView.setOnClickListener {
+            onItemClick(analysis)
+        }
     }
 
     override fun getItemCount() = analysisList.size
