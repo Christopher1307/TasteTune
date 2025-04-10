@@ -7,6 +7,10 @@ import java.io.IOException
 import java.util.Base64
 
 object SpotifyAuth {
+
+    // 🔹 Aquí defines el token para que otras clases lo puedan acceder o modificar
+    var accessToken: String? = null
+
     private const val CLIENT_ID = "b50b2c4af35b42469127fbbc9e71b158"
     private const val CLIENT_SECRET = "70d3d41d86e345fcbce376004d76a173"
     private const val REDIRECT_URI = "http://localhost:8888/callback"
@@ -30,7 +34,10 @@ object SpotifyAuth {
 
         val request = Request.Builder()
             .url(TOKEN_URL)
-            .addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString("$CLIENT_ID:$CLIENT_SECRET".toByteArray()))
+            .addHeader(
+                "Authorization", "Basic " +
+                        Base64.getEncoder().encodeToString("$CLIENT_ID:$CLIENT_SECRET".toByteArray())
+            )
             .post(requestBody)
             .build()
 
@@ -42,9 +49,9 @@ object SpotifyAuth {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val json = response.body?.string()
-                    val sanitizedJson = json ?: ""
-                    val accessToken = Regex("\"access_token\":\"(.*?)\"").find(sanitizedJson)?.groupValues?.get(1)
-                    callback(accessToken)
+                    val token = Regex("\"access_token\":\"(.*?)\"").find(json ?: "")?.groupValues?.get(1)
+                    accessToken = token // 🔹 Guardamos el token aquí
+                    callback(token)
                 } else {
                     callback(null)
                 }
