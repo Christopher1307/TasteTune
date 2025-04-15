@@ -12,7 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.mlkit.vision.common.InputImage
@@ -31,21 +31,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Configuración de navegación
-        val navController = findNavController(R.id.nav_host_fragment)
+        // Configurar navegación con BottomNavigationView
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
 
-        // Configuración de captura y selección de imágenes
+        // Configuración para probar funcionalidades en el layout actual (opcional)
         imageView = findViewById(R.id.imageView)
         tvResults = findViewById(R.id.tvResults)
 
-        findViewById<Button>(R.id.btnCaptureImage).setOnClickListener {
+        findViewById<Button>(R.id.btnCaptureImage)?.setOnClickListener {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
         }
 
-        findViewById<Button>(R.id.btnSelectImage).setOnClickListener {
+        findViewById<Button>(R.id.btnSelectImage)?.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(intent, REQUEST_IMAGE_PICK)
         }
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
         labeler.process(image)
             .addOnSuccessListener { labels ->
-                val resultText = labels.joinToString("\n") { "${it.text} - Precisión: ${it.confidence * 100}%" }
+                val resultText = labels.joinToString("\n") { "${it.text} - Precisión: ${(it.confidence * 100).toInt()}%" }
                 tvResults.text = resultText
             }
             .addOnFailureListener { e ->
