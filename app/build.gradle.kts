@@ -52,11 +52,19 @@ repositories {
 }
 
 dependencies {
+
+    implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
+    implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
+
     // Compose
     implementation("androidx.compose.ui:ui:1.5.0")
     implementation("androidx.compose.material3:material3:1.1.0-alpha02")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.activity:activity-compose:1.7.0")
+    implementation(libs.androidx.monitor)
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.testng)
     debugImplementation("androidx.compose.ui:ui-tooling:1.5.0")
 
     // Firebase

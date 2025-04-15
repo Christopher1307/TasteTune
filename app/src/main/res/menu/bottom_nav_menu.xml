@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/imageSelectorFragment"
+        android:icon="@drawable/ic_gallery"
+        android:title="Escanear" />
+    <item
+        android:id="@+id/analysisHistoryFragment"
+        android:icon="@drawable/ic_history"
+        android:title="Historial" />
+    <item
+        android:id="@+id/playlistDetailFragment"
+        android:icon="@drawable/ic_playlist"
+        android:title="Playlist" />
+</menu>
