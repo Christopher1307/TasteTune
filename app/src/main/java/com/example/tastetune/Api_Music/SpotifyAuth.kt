@@ -13,7 +13,7 @@ object SpotifyAuth {
 
     private const val CLIENT_ID = "b50b2c4af35b42469127fbbc9e71b158"
     private const val CLIENT_SECRET = "70d3d41d86e345fcbce376004d76a173"
-    private const val REDIRECT_URI = "http://localhost:8888/callback"
+    private const val REDIRECT_URI = "tastetune://callback"
     private const val AUTH_URL = "https://accounts.spotify.com/authorize"
     private const val TOKEN_URL = "https://accounts.spotify.com/api/token"
     private const val SCOPES = "user-read-private user-read-email playlist-modify-public playlist-modify-private"
