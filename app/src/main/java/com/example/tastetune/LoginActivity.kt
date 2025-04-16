@@ -44,16 +44,18 @@ class LoginActivity : AppCompatActivity() {
                 SpotifyAuth.requestAccessToken(code) { token ->
                     runOnUiThread {
                         if (token != null) {
-                            Toast.makeText(this, "Token OK", Toast.LENGTH_SHORT).show()
-                            startActivity(Intent(this, MainActivity::class.java))
+                            SpotifyAuth.saveAccessToken(this@LoginActivity, token)
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finish()
                         } else {
-                            Toast.makeText(this, "Error obteniendo token", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@LoginActivity, "Error obteniendo token", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
+
             }
         }
     }
 }
+
 

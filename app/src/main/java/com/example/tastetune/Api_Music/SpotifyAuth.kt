@@ -1,5 +1,6 @@
 package com.example.tastetune.Api_Music
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import okhttp3.*
@@ -22,6 +23,18 @@ object SpotifyAuth {
 
     fun getAuthUrl(): String {
         return "$AUTH_URL?client_id=$CLIENT_ID&response_type=code&redirect_uri=$REDIRECT_URI&scope=$SCOPES"
+    }
+
+    fun saveAccessToken(context: Context, token: String) {
+        val prefs = context.getSharedPreferences("spotify_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putString("access_token", token).apply()
+        accessToken = token
+    }
+
+    fun loadAccessToken(context: Context): String? {
+        val prefs = context.getSharedPreferences("spotify_prefs", Context.MODE_PRIVATE)
+        accessToken = prefs.getString("access_token", null)
+        return accessToken
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

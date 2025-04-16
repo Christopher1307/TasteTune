@@ -32,7 +32,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (SpotifyAuth.accessToken == null) {
+        // ✅ Verificar token en SharedPreferences
+        val token = SpotifyAuth.loadAccessToken(this)
+        if (token == null) {
             Toast.makeText(this, "Token no encontrado, lanzando Login", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -41,13 +43,13 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // Configurar navegación con BottomNavigationView
+        // ✅ Configurar navegación con BottomNavigationView
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
 
-        // Configuración para probar funcionalidades en el layout actual (opcional)
+        // Configuración para pruebas (si decides mantener botones directos)
         imageView = findViewById(R.id.imageView)
         tvResults = findViewById(R.id.tvResults)
 
