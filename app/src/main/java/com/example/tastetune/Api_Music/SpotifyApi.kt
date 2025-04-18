@@ -106,6 +106,35 @@ fun searchTracksSpotify(
     })
 }
 
+fun getPlaylistDetails(
+    accessToken: String,
+    playlistId: String,
+    callback: (name: String, description: String, imageUrl: String) -> Unit
+) {
+    val request = Request.Builder()
+        .url("https://api.spotify.com/v1/playlists/$playlistId")
+        .header("Authorization", "Bearer $accessToken")
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onResponse(call: Call, response: Response) {
+            if (response.isSuccessful) {
+                val json = JSONObject(response.body!!.string())
+                val name = json.getString("name")
+                val description = json.getString("description")
+                val imageUrl = json.getJSONArray("images").getJSONObject(0).getString("url")
+                callback(name, description, imageUrl)
+            } else {
+                println("Error obteniendo playlist: ${response.body?.string()}")
+            }
+        }
+
+        override fun onFailure(call: Call, e: IOException) {
+            println("Error de red: ${e.message}")
+        }
+    })
+}
+
 fun addTracksToPlaylistSimple(
     accessToken: String,
     playlistId: String,
