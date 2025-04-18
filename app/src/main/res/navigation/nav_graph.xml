@@ -11,11 +11,24 @@
 
     <fragment
         android:id="@+id/analysisHistoryFragment"
-        android:name="com.example.tastetune.Api_imagen.AnalysisHistoryFragment"
-        android:label="AnalysisHistory" />
+        android:name="com.example.tastetune.AnalysisHistoryFragment"
+        android:label="Analysis History">
+        <action
+            android:id="@+id/action_analysisHistoryFragment_to_playlistDetailFragment"
+            app:destination="@id/playlistDetailFragment">
+            <argument
+                android:name="playlistId"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/playlistDetailFragment"
         android:name="com.example.tastetune.Api_imagen.PlaylistDetailFragment"
-        android:label="PlaylistDetail" />
+        android:label="PlaylistDetail" >
+        <argument
+            android:name="playlistId"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

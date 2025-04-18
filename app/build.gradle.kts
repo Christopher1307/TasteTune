@@ -6,6 +6,7 @@ plugins {
     id("kotlin-parcelize")
     id("org.jetbrains.compose")
     id("com.google.gms.google-services")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {

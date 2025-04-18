@@ -2,18 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:padding="12dp">
 
-    <TextView
-        android:id="@+id/foodLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Comida detectada" />
+    <ImageView
+        android:id="@+id/itemImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="12dp" />
 
-    <TextView
-        android:id="@+id/timestamp"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:text="Timestamp" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/itemLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Comida detectada"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/itemDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha del análisis"
+            android:textSize="14sp" />
+    </LinearLayout>
 </LinearLayout>

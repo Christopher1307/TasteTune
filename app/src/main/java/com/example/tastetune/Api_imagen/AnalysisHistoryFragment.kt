@@ -1,51 +1,57 @@
-package com.example.tastetune.Api_imagen
+package com.example.tastetune
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.tastetune.AnalysisAdapter
-import com.example.tastetune.R
-import com.example.tastetune.data.FirestoreHelper
 import com.example.tastetune.data.Analysis
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AnalysisHistoryFragment : Fragment() {
 
-    private lateinit var foodLabelTextView: TextView
-    private lateinit var analysisRecyclerView: RecyclerView
-    private lateinit var analysisAdapter: AnalysisAdapter
-    private val firestoreHelper = FirestoreHelper
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: AnalysisAdapter
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.fragment_analysis_history, container, false)
 
-        foodLabelTextView = view.findViewById(R.id.foodLabelTextView)
-        analysisRecyclerView = view.findViewById(R.id.analysisRecyclerView)
+        recyclerView = view.findViewById(R.id.analysisRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        analysisAdapter = AnalysisAdapter(listOf())
-        analysisRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        analysisRecyclerView.adapter = analysisAdapter
+        adapter = AnalysisAdapter(emptyList()) { analysis ->
+            val action = AnalysisHistoryFragmentDirections
+                .actionAnalysisHistoryFragmentToPlaylistDetailFragment(analysis.playlistId)
+            findNavController().navigate(action)
+        }
+        recyclerView.adapter = adapter
 
-        loadAnalysisData()
+        loadAnalyses()
 
         return view
     }
 
-    private fun loadAnalysisData() {
-        firestoreHelper.getAllAnalyses { analyses ->
-            analysisAdapter.updateData(analyses)
-            if (analyses.isNotEmpty()) {
-                foodLabelTextView.text = "Comida detectada: ${analyses[0].foodLabel}"
-            } else {
-                foodLabelTextView.text = "No hay análisis disponibles."
+    private fun loadAnalyses() {
+        db.collection("analyses")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { result ->
+                val list = result.documents.mapNotNull { doc ->
+                    val id = doc.id
+                    val foodLabel = doc.getString("foodLabel") ?: ""
+                    val playlistId = doc.getString("playlistId") ?: ""
+                    val timestamp = doc.getLong("timestamp") ?: 0L
+                    val imagePath = doc.getString("imagePath") ?: ""
+                    Analysis(id, foodLabel, playlistId, timestamp, imagePath)
+                }
+                adapter.updateData(list)
             }
-        }
     }
 }
