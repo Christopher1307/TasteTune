@@ -1,44 +1,84 @@
 package com.example.tastetune.Api_imagen
 
+import SharedViewModel
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
+import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
+import com.example.tastetune.Api_Music.SpotifyAuth
 import com.example.tastetune.R
+import okhttp3.*
+import org.json.JSONObject
+import java.io.IOException
 
 class PlaylistDetailFragment : Fragment() {
 
-    private val db = FirebaseFirestore.getInstance()
+    private lateinit var playlistTitleTextView: TextView
+    private lateinit var playlistDescTextView: TextView
+    private lateinit var playlistImageView: ImageView
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    private val client = OkHttpClient()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val view = inflater.inflate(R.layout.fragment_playlist_detail, container, false)
-        val playlistTextView = view.findViewById<TextView>(R.id.playlistTextView)
 
-        val analysisId = arguments?.getString("analysisId")
-        analysisId?.let { fetchAnalysisFromFirebase(it, playlistTextView) }
+        playlistTitleTextView = view.findViewById(R.id.playlistTextView)
+        playlistDescTextView = view.findViewById(R.id.playlistDescription)
+        playlistImageView = view.findViewById(R.id.playlistImage)
+
+        sharedViewModel.playlistId.observe(viewLifecycleOwner) { playlistId ->
+            playlistId?.let {
+                loadPlaylistDetails(it)
+            } ?: run {
+                playlistTitleTextView.text = "No hay playlist generada"
+            }
+        }
 
         return view
     }
 
-    private fun fetchAnalysisFromFirebase(analysisId: String, playlistTextView: TextView) {
-        db.collection("analyses").document(analysisId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val foodLabel = document.getString("foodLabel")
-                    val playlistId = document.getString("playlistId")
-                    playlistTextView.text = "Playlist Generada para: $foodLabel\n\nPlaylist ID: $playlistId"
-                } else {
-                    playlistTextView.text = "No se encontró la playlist."
+    private fun loadPlaylistDetails(playlistId: String) {
+        val token = SpotifyAuth.accessToken ?: return
+
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/playlists/$playlistId")
+            .addHeader("Authorization", "Bearer $token")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                requireActivity().runOnUiThread {
+                    playlistTitleTextView.text = "Error al cargar: ${e.message}"
                 }
             }
-            .addOnFailureListener { e ->
-                playlistTextView.text = "Error al obtener la playlist: ${e.message}"
+
+            override fun onResponse(call: Call, response: Response) {
+                val json = response.body?.string()
+                if (response.isSuccessful && json != null) {
+                    val jsonObj = JSONObject(json)
+                    val name = jsonObj.getString("name")
+                    val description = jsonObj.optString("description", "Sin descripción")
+                    val imageUrl = jsonObj.getJSONArray("images").optJSONObject(0)?.getString("url")
+
+                    requireActivity().runOnUiThread {
+                        playlistTitleTextView.text = name
+                        playlistDescTextView.text = description
+                        if (!imageUrl.isNullOrEmpty()) {
+                            Glide.with(requireContext()).load(imageUrl).into(playlistImageView)
+                        }
+                    }
+                } else {
+                    requireActivity().runOnUiThread {
+                        playlistTitleTextView.text = "No se pudo obtener la playlist"
+                    }
+                }
             }
+        })
     }
 }

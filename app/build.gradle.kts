@@ -53,6 +53,13 @@ repositories {
 
 dependencies {
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.android.gms:play-services-base:18.2.0")
 
@@ -95,7 +102,6 @@ dependencies {
     // AndroidX
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.fragment:fragment-ktx:1.5.7")
     implementation("androidx.appcompat:appcompat:1.5.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
@@ -107,7 +113,4 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-
-    // LiveData (opcional)
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 }

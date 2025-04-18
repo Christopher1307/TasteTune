@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "354496060504",
+    "project_id": "tastetune-84030",
+    "storage_bucket": "tastetune-84030.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354496060504:android:f7eb3cd2f4d751b4453e2d",
+        "android_client_info": {
+          "package_name": "com.example.tastetune"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2Df0ZL1v1lmqgm4KrdSOipIdObqfBVSw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
