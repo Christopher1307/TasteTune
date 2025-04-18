@@ -39,6 +39,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+
     }
 
     kotlinOptions {
@@ -52,7 +53,15 @@ repositories {
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("androidx.compose.compiler:compiler:1.5.3")
+    }
+}
+
 dependencies {
+
+    implementation("androidx.compose.compiler:compiler:1.5.3")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
