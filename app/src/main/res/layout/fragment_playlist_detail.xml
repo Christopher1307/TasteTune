@@ -40,5 +40,15 @@
         android:layout_weight="1"
         android:layout_marginTop="16dp" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_restart_analysis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:contentDescription="Reiniciar análisis"
+        android:src="@drawable/ic_restart_alt"/> <!-- Usa un ícono de reinicio o algo similar -->
+
+
 
 </LinearLayout>

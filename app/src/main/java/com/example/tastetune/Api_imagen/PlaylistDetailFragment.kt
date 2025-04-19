@@ -1,4 +1,4 @@
-package com.example.tastetune.Api_imagen
+package com.example.tastetune
 
 import SharedViewModel
 import android.os.Bundle
@@ -6,12 +6,12 @@ import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.tastetune.*
 import com.example.tastetune.Api_Music.SpotifyAuth
-import com.example.tastetune.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -22,7 +22,6 @@ class PlaylistDetailFragment : Fragment() {
     private lateinit var playlistDescTextView: TextView
     private lateinit var playlistImageView: ImageView
     private lateinit var tracksRecyclerView: RecyclerView
-
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val trackList = mutableListOf<Track>()
     private lateinit var trackAdapter: TrackAdapter
@@ -44,19 +43,28 @@ class PlaylistDetailFragment : Fragment() {
         tracksRecyclerView.adapter = trackAdapter
 
         sharedViewModel.playlistId.observe(viewLifecycleOwner) { playlistId ->
-            if (!playlistId.isNullOrEmpty()) {
+            if (playlistId != null) {
                 loadPlaylistDetails(playlistId)
-                loadTracks(playlistId)
-            } else {
-                playlistTitleTextView.text = "No hay playlist generada"
             }
+        }
+
+        val restartButton = view.findViewById<FloatingActionButton>(R.id.btn_restart_analysis)
+        restartButton.setOnClickListener {
+            sharedViewModel.clear()
+            findNavController().navigate(R.id.imageSelectorFragment)
         }
 
         return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        sharedViewModel.clear()
+    }
+
     private fun loadPlaylistDetails(playlistId: String) {
         val token = SpotifyAuth.accessToken ?: return
+
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/playlists/$playlistId")
             .addHeader("Authorization", "Bearer $token")
@@ -65,7 +73,7 @@ class PlaylistDetailFragment : Fragment() {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 requireActivity().runOnUiThread {
-                    playlistTitleTextView.text = "Error al cargar: ${e.message}"
+                    playlistTitleTextView.text = "Error al cargar playlist"
                 }
             }
 
@@ -74,16 +82,18 @@ class PlaylistDetailFragment : Fragment() {
                 if (response.isSuccessful) {
                     val obj = JSONObject(json)
                     val name = obj.getString("name")
-                    val description = obj.optString("description", "Sin descripción")
+                    val desc = obj.optString("description", "")
                     val imageUrl = obj.getJSONArray("images").optJSONObject(0)?.getString("url")
 
                     requireActivity().runOnUiThread {
                         playlistTitleTextView.text = name
-                        playlistDescTextView.text = description
+                        playlistDescTextView.text = desc
                         if (!imageUrl.isNullOrEmpty()) {
                             Glide.with(requireContext()).load(imageUrl).into(playlistImageView)
                         }
                     }
+
+                    loadTracks(playlistId)
                 }
             }
         })
@@ -91,6 +101,7 @@ class PlaylistDetailFragment : Fragment() {
 
     private fun loadTracks(playlistId: String) {
         val token = SpotifyAuth.accessToken ?: return
+
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/playlists/$playlistId/tracks")
             .addHeader("Authorization", "Bearer $token")
@@ -98,6 +109,7 @@ class PlaylistDetailFragment : Fragment() {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {}
+
             override fun onResponse(call: Call, response: Response) {
                 val json = response.body?.string() ?: return
                 if (response.isSuccessful) {

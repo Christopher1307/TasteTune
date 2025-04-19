@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/playlistDetailFragment"
-        android:name="com.example.tastetune.Api_imagen.PlaylistDetailFragment"
+        android:name="com.example.tastetune.PlaylistDetailFragment"
         android:label="PlaylistDetail" >
         <argument
             android:name="playlistId"

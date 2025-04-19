@@ -65,10 +65,15 @@ class ImageSelectorFragment : Fragment() {
         selectImageButton = view.findViewById(R.id.selectImageButton)
         takePhotoButton = view.findViewById(R.id.btn_take_photo)
 
-        // Si hay una imagen ya en el ViewModel, la mostramos.
-        sharedViewModel.imageUri.value?.let {
-            imageView.setImageURI(it)
-        } ?: loadLastImageFromFirebase()
+        // Limpiar estado previo de sesión
+        sharedViewModel.clear()
+
+        loadLastImageFromFirebase()
+
+        // Observar si ya hay imagen para mostrarla
+        sharedViewModel.imageUri.observe(viewLifecycleOwner) {
+            it?.let { uri -> imageView.setImageURI(uri) }
+        }
 
         selectImageButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
@@ -100,17 +105,43 @@ class ImageSelectorFragment : Fragment() {
                     if (!imagePath.isNullOrEmpty()) {
                         val uri = Uri.parse(imagePath)
                         sharedViewModel.setImageUri(uri)
-                        imageView.setImageURI(uri)
+
+                        try {
+                            val inputStream = requireContext().contentResolver.openInputStream(uri)
+                            if (inputStream != null) {
+                                val tempFile = File.createTempFile("temp_image_last", ".jpg", requireContext().cacheDir)
+                                val outputStream = tempFile.outputStream()
+
+                                inputStream.copyTo(outputStream)
+                                inputStream.close()
+                                outputStream.close()
+
+                                val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
+                                imageView.setImageBitmap(bitmap)
+                            }
+                        } catch (_: Exception) {}
                     }
                 }
             }
     }
 
     private fun processImage(uri: Uri) {
-        val inputStream = requireContext().contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        val image = InputImage.fromBitmap(bitmap, 0)
-        processImage(image)
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
+            val outputStream = tempFile.outputStream()
+
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+
+            val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
+            val image = InputImage.fromBitmap(bitmap, 0)
+
+            processImage(image)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error al cargar imagen: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun processImage(image: InputImage) {
@@ -124,22 +155,15 @@ class ImageSelectorFragment : Fragment() {
                     val token = SpotifyAuth.accessToken
                     if (token != null) {
                         generateSpotifyPlaylist(token, foodLabel, imagePath)
-                    } else {
-                        Toast.makeText(requireContext(), "Token de Spotify no disponible", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(requireContext(), "No se detectó comida", Toast.LENGTH_SHORT).show()
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Error al procesar la imagen", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun generateSpotifyPlaylist(accessToken: String, foodLabel: String, imagePath: String) {
         getUserProfile(accessToken) { userId ->
             createPlaylist(accessToken, userId, "Música para $foodLabel") { playlistId ->
-                sharedViewModel.postPlaylistId(playlistId)  // ⚠️ Cambiado a postPlaylistId
+                sharedViewModel.postPlaylistId(playlistId)
                 searchTracksSpotify(accessToken, foodLabel) { trackUris ->
                     addTracksToPlaylist(accessToken, playlistId, trackUris) {
                         saveAnalysisToFirebase(foodLabel, playlistId, imagePath)
@@ -161,11 +185,5 @@ class ImageSelectorFragment : Fragment() {
         )
 
         db.collection("analyses").add(analysis)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Playlist creada y guardada", Toast.LENGTH_LONG).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
-            }
     }
 }

@@ -22,5 +22,10 @@ class SharedViewModel : ViewModel() {
         _playlistId.postValue(id)
     }
 
+    fun clear() {
+        _imageUri.value = null
+        _playlistId.value = null
+    }
+
 
 }
