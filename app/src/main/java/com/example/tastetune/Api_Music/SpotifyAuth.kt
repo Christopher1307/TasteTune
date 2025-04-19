@@ -71,4 +71,11 @@ object SpotifyAuth {
             }
         })
     }
+
+    fun clearAccessToken(context: Context) {
+        val prefs = context.getSharedPreferences("spotify_prefs", Context.MODE_PRIVATE)
+        prefs.edit().remove("access_token").apply()
+        accessToken = null
+    }
+
 }
