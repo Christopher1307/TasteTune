@@ -1,6 +1,6 @@
 package com.example.tastetune
 
-import SharedViewModel
+
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -16,6 +16,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.tastetune.Api_Music.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.common.InputImage
@@ -39,9 +40,13 @@ class ImageSelectorFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
             uri?.let {
-                sharedViewModel.setImageUri(it)
-                imageView.setImageURI(it)
-                processImage(it)
+                try {
+                    sharedViewModel.setImageUri(it)
+                    loadImageSafely(it)
+                    processImageSafely(it)
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "Error al acceder a la imagen", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -51,8 +56,8 @@ class ImageSelectorFragment : Fragment() {
     ) { success ->
         if (success) {
             sharedViewModel.setImageUri(photoUri)
-            imageView.setImageURI(photoUri)
-            processImage(photoUri)
+            loadImageSafely(photoUri)
+            processImageSafely(photoUri)
         } else {
             Toast.makeText(requireContext(), "No se tomó la foto", Toast.LENGTH_SHORT).show()
         }
@@ -65,18 +70,12 @@ class ImageSelectorFragment : Fragment() {
         selectImageButton = view.findViewById(R.id.selectImageButton)
         takePhotoButton = view.findViewById(R.id.btn_take_photo)
 
-        // Limpiar estado previo de sesión
         sharedViewModel.clear()
-
         loadLastImageFromFirebase()
-
-        // Observar si ya hay imagen para mostrarla
-        sharedViewModel.imageUri.observe(viewLifecycleOwner) {
-            it?.let { uri -> imageView.setImageURI(uri) }
-        }
 
         selectImageButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             selectImageLauncher.launch(intent)
         }
 
@@ -93,54 +92,29 @@ class ImageSelectorFragment : Fragment() {
         return view
     }
 
-    private fun loadLastImageFromFirebase() {
-        db.collection("analyses")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val doc = documents.documents[0]
-                    val imagePath = doc.getString("imagePath")
-                    if (!imagePath.isNullOrEmpty()) {
-                        val uri = Uri.parse(imagePath)
-                        sharedViewModel.setImageUri(uri)
-
-                        try {
-                            val inputStream = requireContext().contentResolver.openInputStream(uri)
-                            if (inputStream != null) {
-                                val tempFile = File.createTempFile("temp_image_last", ".jpg", requireContext().cacheDir)
-                                val outputStream = tempFile.outputStream()
-
-                                inputStream.copyTo(outputStream)
-                                inputStream.close()
-                                outputStream.close()
-
-                                val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
-                                imageView.setImageBitmap(bitmap)
-                            }
-                        } catch (_: Exception) {}
-                    }
-                }
-            }
+    private fun loadImageSafely(uri: Uri) {
+        try {
+            Glide.with(requireContext())
+                .load(uri)
+                .into(imageView)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error al mostrar la imagen", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    private fun processImage(uri: Uri) {
+    private fun processImageSafely(uri: Uri) {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(uri)
             val tempFile = File.createTempFile("temp_image", ".jpg", requireContext().cacheDir)
-            val outputStream = tempFile.outputStream()
-
-            inputStream?.copyTo(outputStream)
+            inputStream?.copyTo(tempFile.outputStream())
             inputStream?.close()
-            outputStream.close()
 
             val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
             val image = InputImage.fromBitmap(bitmap, 0)
 
             processImage(image)
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Error al cargar imagen: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Error al procesar la imagen", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -155,8 +129,15 @@ class ImageSelectorFragment : Fragment() {
                     val token = SpotifyAuth.accessToken
                     if (token != null) {
                         generateSpotifyPlaylist(token, foodLabel, imagePath)
+                    } else {
+                        Toast.makeText(requireContext(), "Token de Spotify no disponible", Toast.LENGTH_SHORT).show()
                     }
+                } else {
+                    Toast.makeText(requireContext(), "No se detectó comida", Toast.LENGTH_SHORT).show()
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Error al analizar la imagen", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -185,5 +166,32 @@ class ImageSelectorFragment : Fragment() {
         )
 
         db.collection("analyses").add(analysis)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Playlist creada y guardada", Toast.LENGTH_LONG).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Error al guardar: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun loadLastImageFromFirebase() {
+        db.collection("analyses")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val doc = documents.documents[0]
+                    val imagePath = doc.getString("imagePath")
+                    if (!imagePath.isNullOrEmpty()) {
+                        val uri = Uri.parse(imagePath)
+                        sharedViewModel.setImageUri(uri)
+                        loadImageSafely(uri)
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "No se pudo cargar la última imagen", Toast.LENGTH_SHORT).show()
+            }
     }
 }

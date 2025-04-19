@@ -1,7 +1,9 @@
+package com.example.tastetune
+
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.net.Uri
 
 class SharedViewModel : ViewModel() {
 
@@ -12,12 +14,9 @@ class SharedViewModel : ViewModel() {
     val playlistId: LiveData<String?> get() = _playlistId
 
     fun setImageUri(uri: Uri) {
-        _imageUri.postValue(uri)
+        _imageUri.value = uri
     }
 
-    fun setPlaylistId(id: String) {
-        _playlistId.postValue(id)
-    }
     fun postPlaylistId(id: String) {
         _playlistId.postValue(id)
     }
@@ -26,6 +25,4 @@ class SharedViewModel : ViewModel() {
         _imageUri.value = null
         _playlistId.value = null
     }
-
-
 }

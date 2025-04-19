@@ -1,6 +1,6 @@
 package com.example.tastetune
 
-import SharedViewModel
+import com.example.tastetune.SharedViewModel
 import android.os.Bundle
 import android.view.*
 import android.widget.*
