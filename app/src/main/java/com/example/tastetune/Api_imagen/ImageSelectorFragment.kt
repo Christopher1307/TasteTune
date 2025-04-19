@@ -28,8 +28,8 @@ class ImageSelectorFragment : Fragment() {
     private lateinit var imageView: ImageView
     private lateinit var selectImageButton: Button
     private lateinit var takePhotoButton: Button
-
     private lateinit var photoUri: Uri
+
     private val db = FirebaseFirestore.getInstance()
     private val sharedViewModel: SharedViewModel by activityViewModels()
 
@@ -38,10 +38,10 @@ class ImageSelectorFragment : Fragment() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
-            if (uri != null) {
-                sharedViewModel.setImageUri(uri)
-                imageView.setImageURI(uri)
-                processImage(uri)
+            uri?.let {
+                sharedViewModel.setImageUri(it)
+                imageView.setImageURI(it)
+                processImage(it)
             }
         }
     }
@@ -88,7 +88,6 @@ class ImageSelectorFragment : Fragment() {
         return view
     }
 
-
     private fun loadLastImageFromFirebase() {
         db.collection("analyses")
             .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
@@ -100,8 +99,8 @@ class ImageSelectorFragment : Fragment() {
                     val imagePath = doc.getString("imagePath")
                     if (!imagePath.isNullOrEmpty()) {
                         val uri = Uri.parse(imagePath)
-                        imageView.setImageURI(uri)
                         sharedViewModel.setImageUri(uri)
+                        imageView.setImageURI(uri)
                     }
                 }
             }
@@ -126,25 +125,27 @@ class ImageSelectorFragment : Fragment() {
                     if (token != null) {
                         generateSpotifyPlaylist(token, foodLabel, imagePath)
                     } else {
-                        Toast.makeText(requireContext(), "Token no disponible", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Token de Spotify no disponible", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     Toast.makeText(requireContext(), "No se detectó comida", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Error procesando imagen", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error al procesar la imagen", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun generateSpotifyPlaylist(accessToken: String, foodLabel: String, imagePath: String) {
         getUserProfile(accessToken) { userId ->
             createPlaylist(accessToken, userId, "Música para $foodLabel") { playlistId ->
-                sharedViewModel.setPlaylistId(playlistId)
+                sharedViewModel.postPlaylistId(playlistId)  // ⚠️ Cambiado a postPlaylistId
                 searchTracksSpotify(accessToken, foodLabel) { trackUris ->
                     addTracksToPlaylist(accessToken, playlistId, trackUris) {
                         saveAnalysisToFirebase(foodLabel, playlistId, imagePath)
-                        findNavController().navigate(R.id.playlistDetailFragment)
+                        requireActivity().runOnUiThread {
+                            findNavController().navigate(R.id.playlistDetailFragment)
+                        }
                     }
                 }
             }

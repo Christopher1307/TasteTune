@@ -12,10 +12,15 @@ class SharedViewModel : ViewModel() {
     val playlistId: LiveData<String?> get() = _playlistId
 
     fun setImageUri(uri: Uri) {
-        _imageUri.value = uri
+        _imageUri.postValue(uri)
     }
 
     fun setPlaylistId(id: String) {
-        _playlistId.value = id
+        _playlistId.postValue(id)
     }
+    fun postPlaylistId(id: String) {
+        _playlistId.postValue(id)
+    }
+
+
 }
