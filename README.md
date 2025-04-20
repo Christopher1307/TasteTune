@@ -33,13 +33,6 @@
 
 ## 📱 Capturas de pantalla
 
-> Puedes añadir imágenes aquí en tu repositorio:
-
-```md
-![Inicio](screenshots/main.jpg)
-![Playlist Generada](screenshots/playlist.jpg)
-![Historial](screenshots/history.jpg)
-```
 
 ---
 
@@ -129,8 +122,8 @@ Este proyecto está licenciado bajo la **MIT License**. Consulta el archivo `LIC
 
 ## 🙋‍♂️ Autor
 
-**Jonathan Gutiérrez Riego**  
-📧 contacto: [TuCorreo@ejemplo.com]  
+**Christopher Araujo Peña**  
+📧 contacto: [christopher56@gmail.com]  
 🎓 IES CANARIAS — Desarrollo de Aplicaciones Multiplataforma (DAM)  
 📅 Curso 2024/2025
 
