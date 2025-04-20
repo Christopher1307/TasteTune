@@ -12,8 +12,8 @@ object SpotifyAuth {
     // 🔹 Aquí defines el token para que otras clases lo puedan acceder o modificar
     var accessToken: String? = null
 
-    private const val CLIENT_ID = "" // 🔹 Aquí debes poner tu CLIENT_ID si lo coloco yo me roban el token
-    private const val CLIENT_SECRET = "" // 🔹 Aquí debes poner tu CLIENT_SECRET
+    private const val CLIENT_ID = "b50b2c4af35b42469127fbbc9e71b158" // 🔹 Aquí debes poner tu CLIENT_ID si lo coloco yo me roban el token
+    private const val CLIENT_SECRET = "70d3d41d86e345fcbce376004d76a173" // 🔹 Aquí debes poner tu CLIENT_SECRET
     private const val REDIRECT_URI = "tastetune://callback"
     private const val AUTH_URL = "https://accounts.spotify.com/authorize"
     private const val TOKEN_URL = "https://accounts.spotify.com/api/token"
