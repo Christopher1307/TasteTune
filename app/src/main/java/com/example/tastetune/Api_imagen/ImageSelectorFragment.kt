@@ -1,8 +1,8 @@
 package com.example.tastetune
 
-
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -33,6 +34,17 @@ class ImageSelectorFragment : Fragment() {
 
     private val db = FirebaseFirestore.getInstance()
     private val sharedViewModel: SharedViewModel by activityViewModels()
+
+    // Launcher para solicitar permiso de cámara
+    private val requestCameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            launchCameraIntent()
+        } else {
+            Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private val selectImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -80,16 +92,24 @@ class ImageSelectorFragment : Fragment() {
         }
 
         takePhotoButton.setOnClickListener {
-            val photoFile = File.createTempFile("photo_", ".jpg", requireContext().cacheDir)
-            photoUri = FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.provider",
-                photoFile
-            )
-            takePhotoLauncher.launch(photoUri)
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                launchCameraIntent()
+            } else {
+                requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
         }
 
         return view
+    }
+
+    private fun launchCameraIntent() {
+        val photoFile = File.createTempFile("photo_", ".jpg", requireContext().cacheDir)
+        photoUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.provider",
+            photoFile
+        )
+        takePhotoLauncher.launch(photoUri)
     }
 
     private fun loadImageSafely(uri: Uri) {

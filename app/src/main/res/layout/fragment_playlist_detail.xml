@@ -1,54 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/playlistImage"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Imagen de la playlist"
-        android:layout_gravity="center" />
-
-    <TextView
-        android:id="@+id/playlistTextView"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Nombre de la playlist"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginTop="16dp" />
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/playlistDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Descripción"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tracksRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp" />
+            <ImageView
+                android:id="@+id/playlistImage"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:background="@drawable/rounded_corner"
+                android:contentDescription="Imagen de la playlist"
+                android:scaleType="centerCrop" />
 
+            <TextView
+                android:id="@+id/playlistTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Nombre de la playlist"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/playlistDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Descripción"
+                android:textSize="16sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tracksRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botón flotante centrado abajo -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_restart_analysis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="24dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="16dp"
         android:contentDescription="Reiniciar análisis"
-        android:src="@drawable/ic_restart_alt"/> <!-- Usa un ícono de reinicio o algo similar -->
-
-
-
-</LinearLayout>
+        app:backgroundTint="@color/purple_500"
+        app:layout_anchor="@+id/btn_restart_analysis"
+        app:layout_anchorGravity="top|center"
+        app:srcCompat="@drawable/ic_restart_alt"
+        app:tint="@android:color/white" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

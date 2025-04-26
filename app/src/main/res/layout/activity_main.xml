@@ -15,8 +15,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:title="TasteTune"
-        android:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_menu" />
+        android:titleTextColor="@android:color/white"/>
 
     <!-- Contenedor de navegación -->
     <androidx.fragment.app.FragmentContainerView
@@ -35,20 +34,19 @@
         android:layout_gravity="bottom"
         app:menu="@menu/bottom_nav_menu" />
 
-
+    <!-- ÚNICO FloatingActionButton para Cerrar Sesión -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabLogout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="36dp"
-        android:layout_marginBottom="72dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
         android:contentDescription="Cerrar sesión"
         app:srcCompat="@drawable/ic_logout"
-        app:tint="@android:color/white"
-        app:backgroundTint="@color/purple_500" />
-
-
-
+        app:backgroundTint="@color/purple_500"
+        app:tint="@android:color/white"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
