@@ -29,12 +29,6 @@
 | 🔧 JSON parsing | org.json |
 | 🖼️ Carga de imágenes | Glide |
 
----
-
-## 📱 Capturas de pantalla
-
-
----
 
 ## 🚀 Instalación y ejecución
 
